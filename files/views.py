@@ -56,51 +56,55 @@ def update_file(request,audioFileType,pk):
 	# meta_Data = request.POST.get('audioFileMetaData',False)
 	meta_data = json.loads(request.data['audioFileMetaData'])
 	print(meta_data)
-	if audioFileType == 'Song':
-		# print("7777777777777777777777777777777777777777777")
-		# song = Song.objects.get(id = pk)
-		song = get_object_or_404(Song, pk=pk)
-		print(song.song_duration)
-		serializer = SongSerializer(song, data={'song_title':meta_data.get('song_title'),
-												'song_duration':meta_data.get('song_duration'),
-												'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d")}, partial=True)
-			
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-			
-		else:
-			return Response({'invalid':'data'})
+	try:
+		if audioFileType == 'Song':
+			# print("7777777777777777777777777777777777777777777")
+			# song = Song.objects.get(id = pk)
+			song = get_object_or_404(Song, pk=pk)
+			print(song.song_duration)
+			serializer = SongSerializer(song, data={'song_title':meta_data.get('song_title'),
+													'song_duration':meta_data.get('song_duration'),
+													'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d")}, partial=True)
+				
+			if serializer.is_valid():
+				serializer.save()
+				return Response(serializer.data, status=status.HTTP_200_OK)
+				
+			else:
+				return Response("An error occured",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-	if audioFileType == 'Podcast':
-		podcast = get_object_or_404(Podcast, pk=pk)
-		# print(meta_data)
-		serializer = PodcastSerializer(podcast,data = {'podcast_title':meta_data.get('podcast_title'),
-											'podcast_duration':meta_data.get('podcast_duration'),
-											'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
-											'podcast_host':meta_data.get('podcast_host')
-											},partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		if audioFileType == 'Podcast':
+			podcast = get_object_or_404(Podcast, pk=pk)
+			# print(meta_data)
+			serializer = PodcastSerializer(podcast,data = {'podcast_title':meta_data.get('podcast_title'),
+												'podcast_duration':meta_data.get('podcast_duration'),
+												'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
+												'podcast_host':meta_data.get('podcast_host')
+												},partial=True)
+			if serializer.is_valid():
+				serializer.save()
+				return Response(serializer.data, status=status.HTTP_200_OK)
+				
+			else:
+				return Response("An error occured",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 			
-		else:
-			return Response({'invalid':'data'})
-		
-	if audioFileType == 'Audiobook':
-		audiobook = get_object_or_404(Audiobook,pk=pk)
-		serializer = AudiobookSerializer(audiobook,data = {'audiobook_title':meta_data.get('audiobook_title'),
-											'audiobook_author':meta_data.get('audiobook_author'),
-											'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
-											'audiobook_narrator':meta_data.get('audiobook_narrator'),
-											'audiobook_duration':meta_data.get('audiobook_duration')
-											},partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-			
-		else:
-			return Response({'invalid':'data'})
+		if audioFileType == 'Audiobook':
+			audiobook = get_object_or_404(Audiobook,pk=pk)
+			serializer = AudiobookSerializer(audiobook,data = {'audiobook_title':meta_data.get('audiobook_title'),
+												'audiobook_author':meta_data.get('audiobook_author'),
+												'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
+												'audiobook_narrator':meta_data.get('audiobook_narrator'),
+												'audiobook_duration':meta_data.get('audiobook_duration')
+												},partial=True)
+			if serializer.is_valid():
+				serializer.save()
+				return Response(serializer.data, status=status.HTTP_200_OK)
+				
+			else:
+				return Response("An error occured",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+	except Exception as e:
+		# print(e)
+		return Response("The request is invalid",status = status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -119,7 +123,7 @@ def delete_file(request,audioFileType,pk):
 		audiobook = Audiobook.objects.get(id = pk)
 		audiobook.delete()
 		
-	return HttpResponse("Done")
+	return Response("Action is successful",status=status.HTTP_200_OK)
 
 
 
@@ -135,41 +139,44 @@ def create_file(request):
 	meta_data = json.loads(request.data['audioFileMetaData'])
 	
 	if file_type and meta_data:
-		if file_type == 'Song':
-			serializer = SongSerializer(data = {'song_title':meta_data.get('song_title'),
-												'song_duration':meta_data.get('song_duration'),
-												'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d")})
-			
-			if serializer.is_valid():
-				serializer.save()
-				return Response(serializer.data, status=status.HTTP_201_CREATED)
+		try:
+			if file_type == 'Song':
+				serializer = SongSerializer(data = {'song_title':meta_data.get('song_title'),
+													'song_duration':meta_data.get('song_duration'),
+													'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d")})
 				
-			else:
-				return Response({'invalid':'data'})
+				if serializer.is_valid():
+					serializer.save()
+					return Response(serializer.data, status=status.HTTP_200_OK)
+					
+				else:
+					return Response("An error occured",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-		if file_type == 'Podcast':
-			serializer = PodcastSerializer(data = {'podcast_title':meta_data.get('podcast_title'),
-												'podcast_duration':meta_data.get('podcast_duration'),
-												'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
-												'podcast_host':meta_data.get('podcast_host')
-												})
-			if serializer.is_valid():
-				serializer.save()
-				return Response(serializer.data, status=status.HTTP_201_CREATED)
-				
-			else:
-				return Response({'invalid':'data'})
-		
-		if file_type == 'Audiobook':
-			serializer = AudiobookSerializer(data = {'audiobook_title':meta_data.get('audiobook_title'),
-												'audiobook_author':meta_data.get('audiobook_author'),
-												'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
-												'audiobook_narrator':meta_data.get('audiobook_narrator'),
-												'audiobook_duration':meta_data.get('audiobook_duration')
-												})
-			if serializer.is_valid():
-				serializer.save()
-				return Response(serializer.data, status=status.HTTP_201_CREATED)
-				
-			else:
-				return Response({'invalid':'data'})
+			if file_type == 'Podcast':
+				serializer = PodcastSerializer(data = {'podcast_title':meta_data.get('podcast_title'),
+													'podcast_duration':meta_data.get('podcast_duration'),
+													'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
+													'podcast_host':meta_data.get('podcast_host')
+													})
+				if serializer.is_valid():
+					serializer.save()
+					return Response(serializer.data, status=status.HTTP_200_OK)
+					
+				else:
+					return Response("An error occured",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			
+			if file_type == 'Audiobook':
+				serializer = AudiobookSerializer(data = {'audiobook_title':meta_data.get('audiobook_title'),
+													'audiobook_author':meta_data.get('audiobook_author'),
+													'upload_time':datetime.strptime(meta_data.get('upload_time'),"%Y-%m-%d"),
+													'audiobook_narrator':meta_data.get('audiobook_narrator'),
+													'audiobook_duration':meta_data.get('audiobook_duration')
+													})
+				if serializer.is_valid():
+					serializer.save()
+					return Response(serializer.data, status=status.HTTP_200_OK)
+					
+				else:
+					return Response("An error occured",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		except Exception as e:
+			return Response("The request is invalid",status = status.HTTP_400_BAD_REQUEST)
